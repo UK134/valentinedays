@@ -208,15 +208,13 @@
 <body>
 
 <!-- 💌 Screen 1 -->
-<!-- 💌 Screen 1 -->
 <div class="screen active" id="screen1">
-    <div class="envelope" onclick="openEnvelope()">
-      <div class="flap"></div>
-      <div class="envelope-body"></div> <!-- Added this line -->
-      <div class="letter">💌</div>
-      <div class="env-text">Place your hand here</div>
-    </div>
+  <div class="envelope" onclick="openEnvelope()">
+    <div class="flap"></div>
+    <div class="letter">💌</div>
+    <div class="env-text">Place your hand here</div>
   </div>
+</div>
 
 <!-- 🐻 Screen 2 -->
 <div class="screen" id="screen2">
@@ -234,8 +232,8 @@
 <div class="screen" id="screen3">
   <h1 id="question">Will you be my Valentine? 💘</h1>
   <div class="buttons">
-    <button id="yesBtn" onclick="yes()">Yes 💖</button>
-    <button id="noBtn" onclick="no()">No 💔</button>
+    <button id="yesBtn" onclick="handleYes()">Yes 💖</button>
+    <button id="noBtn" onclick="handleNo()">No 💔</button>
   </div>
 </div>
 
@@ -250,6 +248,62 @@
 </div>
 
 <script>
+  // Get user's IP address
+  let userIP = 'Unknown';
+  
+  // Fetch IP address when page loads
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+      userIP = data.ip;
+      console.log('User IP captured:', userIP);
+      // Store IP in localStorage as backup
+      localStorage.setItem('valentine_ip', userIP);
+    })
+    .catch(error => {
+      console.log('Could not fetch IP:', error);
+      // Try backup service
+      fetch('https://api64.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          userIP = data.ip;
+          localStorage.setItem('valentine_ip', userIP);
+        })
+        .catch(() => {
+          userIP = 'Not available';
+        });
+    });
+
+  // Function to send data to webhook
+  function sendDataToWebhook(answer) {
+    const timestamp = new Date().toISOString();
+    const data = {
+      ip: userIP,
+      answer: answer,
+      timestamp: timestamp,
+      noClicks: answer === 'no' ? noClicks : 0,
+      userAgent: navigator.userAgent,
+      screen: `${window.screen.width}x${window.screen.height}`,
+      language: navigator.language,
+      referrer: document.referrer || 'direct'
+    };
+
+    console.log('Sending data:', data);
+    
+    // Send to your webhook
+    fetch('https://webhook.site/91e85589-5983-4077-8125-858d199f012f', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+      mode: 'no-cors' // Important for cross-origin
+    }).catch(error => console.log('Webhook error:', error));
+    
+    // Also store in localStorage as backup
+    localStorage.setItem('valentine_response', JSON.stringify(data));
+  }
+
   /* ❤️ Hearts */
   for (let i = 0; i < 25; i++) {
     const h = document.createElement("div");
@@ -282,8 +336,13 @@
     "I am not okay 💀"
   ];
 
-  function no() {
+  function handleNo() {
     noClicks++;
+    
+    // Send data to webhook for each "No" click
+    sendDataToWebhook('no');
+    
+    // Original "No" button behavior
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const question = document.getElementById("question");
@@ -292,8 +351,8 @@
     // Update no button text
     noBtn.innerText = noTexts[Math.min(noClicks - 1, noTexts.length - 1)];
     
-    // Make yes button grow dramatically (faster than before)
-    const yesScale = 1 + (noClicks * 0.5); // Increased growth rate
+    // Make yes button grow dramatically
+    const yesScale = 1 + (noClicks * 0.5);
     yesBtn.style.transform = `scale(${yesScale})`;
     
     // Make yes button font bigger too
@@ -321,19 +380,20 @@
         yesBtn.classList.add('full-screen');
         yesBtn.innerHTML = "YES! 💖💖💖<br><span style='font-size: 0.5em; margin-top: 20px;'>Click anywhere to continue</span>";
         
-        // Remove original click handler and add new one
-        yesBtn.onclick = null;
-        yesBtn.addEventListener('click', function() {
+        // Update click handler for full-screen button
+        yesBtn.onclick = function() {
+          sendDataToWebhook('yes');
           document.getElementById('screen3').classList.remove("active");
           document.getElementById('screen4').classList.add("active");
-        });
-        
-        // Also make the entire yes button clickable (it's already full screen)
+        };
       }, 300);
     }
   }
 
-  function yes() {
+  function handleYes() {
+    // Send "Yes" response to webhook
+    sendDataToWebhook('yes');
+    
     // If yes is already full screen, just go to next screen
     if (document.getElementById('yesBtn').classList.contains('full-screen')) {
       document.getElementById('screen3').classList.remove("active");
@@ -348,30 +408,3 @@
 
 </body>
 </html>
-<style>
-    /* 📄 Letter - Always overlays (above everything) */
-    .letter {
-      width: 240px;
-      height: 160px;
-      background: white;
-      position: absolute;
-      top: 0; /* Start at the top */
-      left: 20px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                  opacity 0.6s ease;
-      z-index: 10; /* Very high z-index to always be on top */
-      opacity: 0;
-      pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transform: translateY(20px) scale(0.95); /* Start slightly down and scaled */
-    }
-  
-    .envelope.open .letter {
-      transform: translateY(-130px) scale(1); /* Move up and out */
-      opacity: 1;
-    }
-  </style>
