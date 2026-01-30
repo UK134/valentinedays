@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine 💘</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff8fa3, #ffd1dc);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .screen {
+    display: none;
+    text-align: center;
+    position: relative;
+  }
+
+  .active {
+    display: block;
+  }
+
+  /* ❤️ Floating hearts */
+  .heart {
+    position: absolute;
+    color: red;
+    font-size: 22px;
+    animation: float 6s linear infinite;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  @keyframes float {
+    from { transform: translateY(100vh); opacity: 1; }
+    to { transform: translateY(-10vh); opacity: 0; }
+  }
+
+  /* 💌 Envelope */
+  .envelope {
+    width: 280px;
+    height: 190px;
+    background: #f6d88b;
+    position: relative;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+    overflow: visible;
+    margin: 0 auto;
+  }
+
+  .flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 140px solid transparent;
+    border-right: 140px solid transparent;
+    border-top: 95px solid #f1c96b;
+    transform-origin: top;
+    transition: transform 0.7s ease;
+    z-index: 3;
+  }
+
+  .envelope.open .flap {
+    transform: rotateX(180deg);
+  }
+
+  /* 📄 Letter - Updated to come completely out */
+  .letter {
+    width: 240px;
+    height: 160px;
+    background: white;
+    position: absolute;
+    bottom: -160px; /* Start completely below envelope */
+    left: 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.6s ease;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .envelope.open .letter {
+    transform: translateY(-180px); /* Move up enough to be fully visible */
+    opacity: 1;
+  }
+
+  .env-text {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  /* 🐻 Card */
+  .card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+    max-width: 360px;
+  }
+
+  .bears img {
+    width: 90px;
+  }
+
+  /* 💘 Valentine */
+  h1 {
+    margin-bottom: 40px;
+    transition: margin-top 0.3s ease;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 40px; /* Increased gap to prevent overlap */
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on very small screens */
+    padding: 20px;
+    position: relative;
+  }
+
+  button {
+    border: none;
+    padding: 15px 25px;
+    font-size: 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px; /* Ensure minimum width */
+    white-space: nowrap; /* Prevent text wrapping */
+    position: relative;
+    z-index: 1;
+  }
+
+  #yesBtn {
+    background: #4CAF50;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  #yesBtn.full-screen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    border-radius: 0 !important;
+    font-size: 3em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    flex-direction: column;
+    box-shadow: none !important;
+  }
+
+  #noBtn {
+    background: #e74c3c;
+    color: white;
+  }
+
+  /* 🎉 Final screen styles */
+  .final-screen {
+    text-align: center;
+    color: white;
+    padding: 20px;
+  }
+
+  .final-screen h1 {
+    margin-bottom: 30px;
+    font-size: 2.5em;
+  }
+
+  .hugging-bears {
+    max-width: 300px;
+    margin: 20px auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+</style>
+</head>
+
+<body>
+
+<!-- 💌 Screen 1 -->
+<!-- 💌 Screen 1 -->
+<div class="screen active" id="screen1">
+    <div class="envelope" onclick="openEnvelope()">
+      <div class="flap"></div>
+      <div class="envelope-body"></div> <!-- Added this line -->
+      <div class="letter">💌</div>
+      <div class="env-text">Place your hand here</div>
+    </div>
+  </div>
+
+<!-- 🐻 Screen 2 -->
+<div class="screen" id="screen2">
+  <div class="card">
+    <div class="bears">
+      <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+    </div>
+    <h2>You are one in a million 💖</h2>
+    <p>I love you ❤️</p>
+    <button onclick="goToValentine()">Open 💕</button>
+  </div>
+</div>
+
+<!-- 💘 Screen 3 -->
+<div class="screen" id="screen3">
+  <h1 id="question">Will you be my Valentine? 💘</h1>
+  <div class="buttons">
+    <button id="yesBtn" onclick="yes()">Yes 💖</button>
+    <button id="noBtn" onclick="no()">No 💔</button>
+  </div>
+</div>
+
+<!-- 🎉 Screen 4 - Final Hugging Bears -->
+<div class="screen final-screen" id="screen4">
+  <h1>YAYYYYY 💖💍</h1>
+  <h1>You're my Valentine 😌</h1>
+  <div class="hugging-bears">
+    <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXR1ZHFxMHkydng2YTFqOTZoNDlveXl4Ym8wazNydDltN2kwdTh6YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IzXiddo2twMmdmU8Lv/giphy.gif" alt="Hugging Teddy Bears" style="width:100%;">
+  </div>
+  <p style="margin-top: 30px; font-size: 1.2em;">Best decision ever! 🐻❤️🐻</p>
+</div>
+
+<script>
+  /* ❤️ Hearts */
+  for (let i = 0; i < 25; i++) {
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.innerHTML = "❤️";
+    h.style.left = Math.random() * 100 + "vw";
+    h.style.animationDuration = 4 + Math.random() * 4 + "s";
+    document.body.appendChild(h);
+  }
+
+  function openEnvelope() {
+    document.querySelector(".envelope").classList.add("open");
+    setTimeout(() => {
+      document.getElementById('screen1').classList.remove("active");
+      document.getElementById('screen2').classList.add("active");
+    }, 1000);
+  }
+
+  function goToValentine() {
+    document.getElementById('screen2').classList.remove("active");
+    document.getElementById('screen3').classList.add("active");
+  }
+
+  let noClicks = 0;
+  const noTexts = [
+    "Give it another thought 😐",
+    "Are you sure? 🥺",
+    "You're breaking my heart 💔",
+    "PLEASE 😭",
+    "I am not okay 💀"
+  ];
+
+  function no() {
+    noClicks++;
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const question = document.getElementById("question");
+    const buttonsContainer = document.querySelector('.buttons');
+
+    // Update no button text
+    noBtn.innerText = noTexts[Math.min(noClicks - 1, noTexts.length - 1)];
+    
+    // Make yes button grow dramatically (faster than before)
+    const yesScale = 1 + (noClicks * 0.5); // Increased growth rate
+    yesBtn.style.transform = `scale(${yesScale})`;
+    
+    // Make yes button font bigger too
+    yesBtn.style.fontSize = `${18 + (noClicks * 8)}px`;
+    
+    // Scale down no button more aggressively
+    const noScale = Math.max(0.2, 1 - noClicks * 0.25);
+    noBtn.style.transform = `scale(${noScale})`;
+    
+    // Move question up
+    question.style.marginTop = `${-noClicks * 15}px`;
+    
+    // Ensure buttons don't overlap by increasing gap dynamically
+    const currentGap = 40 + (noClicks * 15);
+    buttonsContainer.style.gap = `${currentGap}px`;
+    
+    // When no button disappears (after 4 clicks), make yes fill screen
+    if (noClicks >= 4) {
+      noBtn.style.opacity = '0';
+      noBtn.style.pointerEvents = 'none';
+      noBtn.style.transform = 'scale(0)';
+      
+      // Make yes button fill the entire screen
+      setTimeout(() => {
+        yesBtn.classList.add('full-screen');
+        yesBtn.innerHTML = "YES! 💖💖💖<br><span style='font-size: 0.5em; margin-top: 20px;'>Click anywhere to continue</span>";
+        
+        // Remove original click handler and add new one
+        yesBtn.onclick = null;
+        yesBtn.addEventListener('click', function() {
+          document.getElementById('screen3').classList.remove("active");
+          document.getElementById('screen4').classList.add("active");
+        });
+        
+        // Also make the entire yes button clickable (it's already full screen)
+      }, 300);
+    }
+  }
+
+  function yes() {
+    // If yes is already full screen, just go to next screen
+    if (document.getElementById('yesBtn').classList.contains('full-screen')) {
+      document.getElementById('screen3').classList.remove("active");
+      document.getElementById('screen4').classList.add("active");
+    } else {
+      // Go to final screen with hugging bears
+      document.getElementById('screen3').classList.remove("active");
+      document.getElementById('screen4').classList.add("active");
+    }
+  }
+</script>
+
+</body>
+</html>
+<style>
+    /* 📄 Letter - Always overlays (above everything) */
+    .letter {
+      width: 240px;
+      height: 160px;
+      background: white;
+      position: absolute;
+      top: 0; /* Start at the top */
+      left: 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                  opacity 0.6s ease;
+      z-index: 10; /* Very high z-index to always be on top */
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(20px) scale(0.95); /* Start slightly down and scaled */
+    }
+  
+    .envelope.open .letter {
+      transform: translateY(-130px) scale(1); /* Move up and out */
+      opacity: 1;
+    }
+  </style>
